@@ -9,7 +9,7 @@ import ChatPanel from '@/components/chat/ChatPanel';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import useAudioVisualization from '@/hooks/useAudioVisualization';
 import { useAuth } from '@/hooks/useAuth';
-import { Sparkles, MessageCircle, LayoutDashboard, LogOut, LogIn } from 'lucide-react';
+import { Sparkles, MessageCircle, LogOut, LogIn } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ const Index = () => {
             }`}
           >
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border-glow">
-              <Sparkles className="w-5 h-5 text-primary" />
+              <Sparkles className="w-5 h-5 text-primary" /> <img src="/favicon.ico" alt="logo" className="rounded-xl"/>
             </div>
             <div>
               <h1 className="font-display text-xl font-semibold text-foreground">
@@ -97,20 +97,6 @@ const Index = () => {
           </motion.div>
           
           <div className="flex items-center gap-2 md:gap-3">
-            {user && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/dashboard')}
-                className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-full glass-card haptic-glow cursor-pointer transition-all duration-700 delay-100 ${
-                  isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4 text-primary" />
-                <span className="text-sm text-foreground hidden sm:inline">Dashboard</span>
-              </motion.button>
-            )}
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -232,7 +218,9 @@ const Index = () => {
           }`}
         >
           <p className="text-xs text-muted-foreground text-center">
-            Powered by Advanced Medical AI • HIPAA Compliant
+            Powered by Advanced Medical AI • Built with NovaCare <br/>
+            Still Loading © {new Date().getFullYear()}
+
           </p>
         </footer>
       </div>
