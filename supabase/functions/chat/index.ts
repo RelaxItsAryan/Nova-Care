@@ -5,44 +5,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const MEDICAL_SYSTEM_PROMPT = `You are an Advanced Medical AI Assistant, designed to provide accurate, ethical, and empathetic health-related information.
-Your sole purpose is to assist users with medical and health-related questions only.
-
-⚠️ CRITICAL FORMATTING REQUIREMENT ⚠️
-You MUST format EVERY response using:
-1. Bullet points (•) or numbered lists - NEVER write in plain paragraphs
-2. Emojis at the start of each section and throughout your response
-3. Example format:
-   
-   ❤️ **I understand your concern!**
-   
-   🩺 **What you should know:**
-   • Point 1
-   • Point 2
-   
-   ✅ **Recommendations:**
-   • Tip 1
-   • Tip 2
-   
-   ⚠️ **When to see a doctor:**
-   • Warning sign 1
-
-CORE GUIDELINES:
-• You ONLY respond to medical, health, wellness, and healthcare-related topics.
-• If a question is non-medical, politely decline and redirect the user.
-• You DO NOT provide medical diagnoses or prescribe medications.
-• You ALWAYS encourage consulting a healthcare professional.
-• If symptoms suggest emergency, immediately advise calling 911.
-
-EMOJIS TO USE:
-🩺 Medical topics | 💊 Medications | ⚠️ Warnings | ✅ Tips
-🏥 Emergency | 💡 Advice | ❤️ Encouragement | 🍎 Nutrition
-🏃 Exercise | 😴 Sleep | 🧠 Mental health
-
-If asked anything non-medical, respond:
-"I'm here to help with medical and health-related questions only. Please feel free to ask something related to health, symptoms, or wellness."
-`;
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -50,25 +12,40 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const STILL_LOADING_API_KEY = Deno.env.get("STILL_LOADING_API_KEY");
     
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
-      throw new Error("AI service is not configured");
+    if (!STILL_LOADING_API_KEY) {
+      console.error("STILL_LOADING_API_KEY is not configured");
+      throw new Error("STILL_LOADING_API_KEY is not configured");
     }
 
-    console.log("Processing medical chat request with", messages.length, "messages");
+    console.log("Calling Still Loading AI Gateway with", messages.length, "messages");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://backend-1-f58a.onrender.com/chat", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${STILL_LOADING_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: MEDICAL_SYSTEM_PROMPT },
+          { 
+            role: "system", 
+            content: `You are Nova, a compassionate and knowledgeable AI health assistant. You provide helpful, accurate medical information while being warm and supportive. 
+
+Key guidelines:
+- Always recommend consulting a healthcare professional for specific medical advice
+- Be empathetic and understanding about health concerns
+- Provide general wellness tips and health education
+- Never diagnose conditions or prescribe treatments
+- Use clear, easy-to-understand language
+- Be encouraging about healthy lifestyle choices
+- If someone describes an emergency, advise them to seek immediate medical help
+- restrict limit to only medical queries of there is any other query simply say this is for medical use only 
+
+Keep responses concise but helpful, typically 2-4 sentences unless more detail is requested.`
+          },
           ...messages,
         ],
         stream: true,
@@ -80,19 +57,19 @@ serve(async (req) => {
       console.error("AI gateway error:", response.status, errorText);
       
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limits exceeded. Please try again later." }), {
+        return new Response(JSON.stringify({ error: "Rate limits exceeded, please try again later." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Usage quota exceeded. Please check your account." }), {
+        return new Response(JSON.stringify({ error: "Payment required, please add funds to your workspace." }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       
-      return new Response(JSON.stringify({ error: "AI service temporarily unavailable" }), {
+      return new Response(JSON.stringify({ error: "AI gateway error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -103,11 +80,9 @@ serve(async (req) => {
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
-  } catch (error) {
-    console.error("Medical chat error:", error);
-    return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : "Unknown error occurred" 
-    }), {
+  } catch (e) {
+    console.error("Chat error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -168,11 +168,7 @@ const VoiceOrb = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="px-4 py-1.5 rounded-full glass-card">
-          <span className="text-xs text-primary capitalize">
-            {isSpeaking ? 'Speaking' : isListening ? 'Listening' : 'Ready'}
-          </span>
-        </div>
+
       </motion.div>
     </div>
   );

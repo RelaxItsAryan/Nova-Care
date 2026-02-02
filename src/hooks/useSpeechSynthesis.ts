@@ -33,29 +33,53 @@ export const useSpeechSynthesis = () => {
     const utterance = new SpeechSynthesisUtterance(text);
     utteranceRef.current = utterance;
 
-    // Find the best female voice - prefer soft, sweet sounding voices
-    const femaleVoiceNames = [
-      'samantha', 'victoria', 'karen', 'moira', 'tessa', 'fiona',
-      'veena', 'alex', 'allison', 'ava', 'susan', 'zira', 'hazel',
-      'heather', 'female', 'woman', 'girl', 'microsoft zira', 
-      'google uk english female', 'google us english female'
+    // Find a high-quality female AI voice for Nova
+    // Priority: Google/Microsoft Neural voices > Apple voices > Other female voices
+    const femaleVoiceKeywords = [
+      'google us english',      // Google's natural female voice
+      'google uk english female',
+      'microsoft zira',         // Microsoft's female voice
+      'microsoft aria',         // Microsoft Azure Neural female voice
+      'microsoft jenny',        // Microsoft Neural female voice
+      'samantha',               // Apple's default female voice (macOS/iOS)
+      'karen',                  // Apple Australian female
+      'moira',                  // Apple Irish female
+      'tessa',                  // Apple South African female
+      'fiona',                  // Apple Scottish female
+      'victoria',               // Apple female voice
+      'allison',                // Apple female voice
+      'ava',                    // Apple female voice
+      'susan',                  // Apple female voice
+      'zira',                   // Windows female voice
+      'hazel',                  // Windows UK female voice
+      'female',                 // Generic female identifier
     ];
+
+    // Find the best matching female voice
+    let preferredVoice: SpeechSynthesisVoice | undefined;
     
-    const preferredVoice = voices.find(
-      (voice) => 
-        voice.lang.startsWith('en') && 
-        femaleVoiceNames.some(name => voice.name.toLowerCase().includes(name))
-    ) || voices.find(
-      (voice) => voice.lang.startsWith('en-US') || voice.lang.startsWith('en-GB')
-    ) || voices.find((voice) => voice.lang.startsWith('en')) || voices[0];
+    for (const keyword of femaleVoiceKeywords) {
+      preferredVoice = voices.find(
+        (voice) => 
+          voice.lang.startsWith('en') && 
+          voice.name.toLowerCase().includes(keyword)
+      );
+      if (preferredVoice) break;
+    }
+
+    // Fallback to any English voice, then any voice
+    if (!preferredVoice) {
+      preferredVoice = voices.find((voice) => voice.lang.startsWith('en')) || voices[0];
+    }
 
     if (preferredVoice) {
       utterance.voice = preferredVoice;
+      console.log('Using voice:', preferredVoice.name);
     }
 
-    // Slightly higher pitch for a sweeter, more feminine sound
-    utterance.rate = 0.95;  // Slightly slower for a sultry effect
-    utterance.pitch = 1.3;  // Higher pitch for feminine voice
+    // Slightly higher pitch for a more feminine, friendly tone
+    utterance.rate = 0.95;
+    utterance.pitch = 1.15;
     utterance.volume = 1.0;
 
     utterance.onstart = () => setIsSpeaking(true);

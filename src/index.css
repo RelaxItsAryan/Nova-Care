@@ -357,8 +357,3 @@
     transform: rotateY(360deg);
   }
 }
-
-html{
-  scrollbar-width: none;
-  overflow: hidden;
-}

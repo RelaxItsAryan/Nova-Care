@@ -1,32 +1,45 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Mic, MicOff, Bot, User, Volume2, VolumeX } from 'lucide-react';
-import { useChatHistory } from '@/hooks/useChat';
+import { X, Send, Mic, MicOff, Bot, User, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { useChat } from '@/hooks/useChat';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useAuth } from '@/hooks/useAuth';
 import ReactMarkdown from 'react-markdown';
+import ChatHistory from './ChatHistory';
+import QuickActions from '@/components/features/QuickActions';
 
 interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  onVoiceStart?: () => void;
-  onVoiceStop?: () => void;
-  isListening?: boolean;
 }
 
-const ChatPanel = ({ 
-  isOpen, 
-  onClose, 
-  onVoiceStart, 
-  onVoiceStop,
-  isListening = false 
-}: ChatPanelProps) => {
+const ChatPanel = ({ isOpen, onClose }: ChatPanelProps) => {
+  const { user } = useAuth();
   const [inputValue, setInputValue] = useState('');
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [showQuickActions, setShowQuickActions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
-  const { messages, isTyping, sendMessage } = useChatHistory();
-  const { speak, stop, isSpeaking, isSupported } = useSpeechSynthesis();
+  const { 
+    messages, 
+    isTyping, 
+    sendMessage, 
+    conversationId,
+    loadConversation,
+    startNewConversation 
+  } = useChat(user?.id);
+  const { speak, stop, isSpeaking, isSupported: ttsSupported } = useSpeechSynthesis();
+  const { 
+    isListening, 
+    transcript, 
+    interimTranscript, 
+    isSupported: sttSupported,
+    startListening,
+    stopListening,
+    resetTranscript
+  } = useSpeechRecognition();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,16 +55,32 @@ const ChatPanel = ({
     }
   }, [isOpen]);
 
+  // Handle speech-to-text transcript
+  useEffect(() => {
+    if (transcript && !isListening) {
+      setInputValue(prev => prev + transcript);
+      resetTranscript();
+    }
+  }, [transcript, isListening, resetTranscript]);
+
+  // Update input with interim transcript
+  useEffect(() => {
+    if (interimTranscript) {
+      // Show interim in the input as a preview
+    }
+  }, [interimTranscript]);
+
   const handleSend = async () => {
     if (!inputValue.trim() || isTyping) return;
 
     const userInput = inputValue;
     setInputValue('');
+    setShowQuickActions(false);
     
     const response = await sendMessage(userInput);
     
     // Speak the response if voice is enabled
-    if (voiceEnabled && response && isSupported) {
+    if (voiceEnabled && response && ttsSupported) {
       speak(response);
     }
   };
@@ -63,11 +92,11 @@ const ChatPanel = ({
     }
   };
 
-  const toggleVoice = () => {
+  const toggleVoiceInput = () => {
     if (isListening) {
-      onVoiceStop?.();
+      stopListening();
     } else {
-      onVoiceStart?.();
+      startListening();
     }
   };
 
@@ -76,6 +105,20 @@ const ChatPanel = ({
       stop();
     }
     setVoiceEnabled(!voiceEnabled);
+  };
+
+  const handleQuickAction = async (prompt: string) => {
+    setShowQuickActions(false);
+    setInputValue('');
+    const response = await sendMessage(prompt);
+    if (voiceEnabled && response && ttsSupported) {
+      speak(response);
+    }
+  };
+
+  const handleSelectConversation = (convId: string) => {
+    loadConversation(convId);
+    setShowQuickActions(false);
   };
 
   return (
@@ -115,7 +158,14 @@ const ChatPanel = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isSupported && (
+                  {user && (
+                    <ChatHistory
+                      onSelectConversation={handleSelectConversation}
+                      onNewChat={startNewConversation}
+                      currentConversationId={conversationId}
+                    />
+                  )}
+                  {ttsSupported && (
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
@@ -190,6 +240,18 @@ const ChatPanel = ({
                     </div>
                   </motion.div>
                 ))}
+
+                {/* Quick Actions - show only at start */}
+                {showQuickActions && messages.length <= 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="pt-4"
+                  >
+                    <QuickActions onSelectAction={handleQuickAction} />
+                  </motion.div>
+                )}
 
                 {/* Typing indicator */}
                 <AnimatePresence>
@@ -267,30 +329,49 @@ const ChatPanel = ({
                 )}
               </AnimatePresence>
 
+              {/* Listening indicator */}
+              <AnimatePresence>
+                {isListening && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="px-4 py-2 border-t border-border/30 bg-destructive/10"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-destructive animate-pulse" />
+                      <span className="text-xs text-destructive">Listening...</span>
+                      {interimTranscript && (
+                        <span className="text-xs text-muted-foreground italic truncate max-w-[200px]">
+                          "{interimTranscript}"
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Input area */}
               <div className="p-4 border-t border-border/30">
                 <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={toggleVoice}
-                    className={`p-3 rounded-xl transition-all duration-300 ${
-                      isListening
-                        ? 'bg-primary text-primary-foreground shadow-lg'
-                        : 'glass-card hover:border-glow'
-                    }`}
-                    style={{
-                      boxShadow: isListening
-                        ? '0 0 20px hsl(180 60% 55% / 0.5)'
-                        : undefined,
-                    }}
-                  >
-                    {isListening ? (
-                      <MicOff className="w-5 h-5" />
-                    ) : (
-                      <Mic className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </motion.button>
+                  {sttSupported && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={toggleVoiceInput}
+                      className={`p-3 rounded-xl transition-all duration-300 ${
+                        isListening
+                          ? 'bg-destructive text-destructive-foreground shadow-lg animate-pulse'
+                          : 'glass-card hover:border-glow'
+                      }`}
+                    >
+                      {isListening ? (
+                        <MicOff className="w-5 h-5" />
+                      ) : (
+                        <Mic className="w-5 h-5 text-muted-foreground" />
+                      )}
+                    </motion.button>
+                  )}
 
                   <div className="flex-1 relative">
                     <input
@@ -299,7 +380,7 @@ const ChatPanel = ({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={handleKeyPress}
-                      placeholder="Type your message..."
+                      placeholder={isListening ? "Speak now..." : "Type your message..."}
                       disabled={isTyping}
                       className="w-full px-4 py-3 rounded-xl bg-muted/50 border border-border/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                     />
@@ -324,16 +405,6 @@ const ChatPanel = ({
                     <Send className="w-5 h-5" />
                   </motion.button>
                 </div>
-
-                {isListening && (
-                  <motion.p
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-xs text-primary text-center mt-2"
-                  >
-                    Listening... Speak now
-                  </motion.p>
-                )}
               </div>
             </div>
           </motion.div>

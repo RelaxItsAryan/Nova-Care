@@ -3,13 +3,86 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AmbientBackground from '@/components/AmbientBackground';
 import VoiceOrb from '@/components/voice/VoiceOrb';
-import WaveformVisualizer from '@/components/voice/WaveformVisualizer';
 import GlassWidget from '@/components/GlassWidget';
 import ChatPanel from '@/components/chat/ChatPanel';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import useAudioVisualization from '@/hooks/useAudioVisualization';
 import { useAuth } from '@/hooks/useAuth';
-import { Sparkles, MessageCircle, LogOut, LogIn } from 'lucide-react';
+import AIModelCard from '@/components/features/AIModelCard';
+import FeatureCard from '@/components/features/FeatureCard';
+import { 
+  Sparkles, 
+  MessageCircle, 
+  LogOut, 
+  LogIn, 
+  User,
+  Stethoscope,
+  Brain,
+  Heart,
+  Pill,
+  Activity,
+  Shield,
+  Zap
+} from 'lucide-react';
+
+const aiModels = [
+  {
+    name: 'Nova General',
+    specialty: 'General Health Assistant',
+    description: 'Your primary AI companion for everyday health questions and wellness guidance.',
+    capabilities: ['Symptom Analysis', 'Health Tips', 'Lifestyle Advice'],
+    color: 'hsl(180, 60%, 50%)',
+    isActive: true,
+  },
+  {
+    name: 'Nova Cardio',
+    specialty: 'Cardiovascular Health',
+    description: 'Specialized in heart health, blood pressure management, and cardiac wellness.',
+    capabilities: ['Heart Health', 'BP Tracking', 'Exercise Plans'],
+    color: 'hsl(0, 70%, 55%)',
+  },
+  {
+    name: 'Nova Mind',
+    specialty: 'Mental Wellness',
+    description: 'Focused on mental health support, stress management, and emotional wellbeing.',
+    capabilities: ['Stress Relief', 'Mindfulness', 'Sleep Support'],
+    color: 'hsl(260, 60%, 55%)',
+  },
+  {
+    name: 'Nova Nutrition',
+    specialty: 'Diet & Nutrition',
+    description: 'Expert guidance on nutrition, meal planning, and dietary health optimization.',
+    capabilities: ['Meal Plans', 'Nutrition Info', 'Diet Analysis'],
+    color: 'hsl(140, 60%, 45%)',
+  },
+];
+
+const features = [
+  {
+    icon: Stethoscope,
+    title: 'Smart Symptom Checker',
+    description: 'AI-powered analysis of your symptoms with evidence-based insights and recommendations.',
+    gradient: 'bg-gradient-to-br from-cyan-500 to-blue-600',
+  },
+  {
+    icon: Brain,
+    title: 'Personalized Insights',
+    description: 'Get health recommendations tailored to your unique profile and medical history.',
+    gradient: 'bg-gradient-to-br from-purple-500 to-pink-600',
+  },
+  {
+    icon: Shield,
+    title: 'HIPAA Compliant',
+    description: 'Your health data is encrypted and protected with enterprise-grade security.',
+    gradient: 'bg-gradient-to-br from-green-500 to-emerald-600',
+  },
+  {
+    icon: Zap,
+    title: 'Real-time Responses',
+    description: 'Instant AI responses with streaming technology for natural conversations.',
+    gradient: 'bg-gradient-to-br from-yellow-500 to-orange-600',
+  },
+];
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,14 +90,9 @@ const Index = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(0);
   
-  const {
-    isListening,
-    audioLevel,
-    audioData,
-    startListening,
-    stopListening,
-  } = useAudioVisualization();
+  const { audioLevel } = useAudioVisualization();
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('nova-care-onboarded');
@@ -41,14 +109,6 @@ const Index = () => {
 
   const handleConsultationClick = () => {
     setIsChatOpen(true);
-  };
-
-  const toggleVoice = async () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      await startListening();
-    }
   };
 
   const handleAuthAction = async () => {
@@ -72,9 +132,6 @@ const Index = () => {
       <ChatPanel
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
-        onVoiceStart={startListening}
-        onVoiceStop={stopListening}
-        isListening={isListening}
       />
       
       <div className="relative z-10 min-h-screen flex flex-col">
@@ -86,7 +143,7 @@ const Index = () => {
             }`}
           >
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border-glow">
-              <Sparkles className="w-5 h-5 text-primary" /> <img src="/favicon.ico" alt="logo" className="rounded-xl"/>
+              <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h1 className="font-display text-xl font-semibold text-foreground">
@@ -97,6 +154,20 @@ const Index = () => {
           </motion.div>
           
           <div className="flex items-center gap-2 md:gap-3">
+            {user && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/profile')}
+                className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-full glass-card haptic-glow cursor-pointer transition-all duration-700 delay-100 ${
+                  isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+                }`}
+              >
+                <User className="w-4 h-4 text-primary" />
+                <span className="text-sm text-foreground hidden sm:inline">Profile</span>
+              </motion.button>
+            )}
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -121,93 +192,136 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Main Interface - Simplified */}
-        <main className="flex-1 flex items-center justify-center px-4 md:px-6 py-8">
-          <div className="flex flex-col items-center gap-8 max-w-lg w-full">
-            {/* Center - Voice Orb */}
-            <motion.div 
-              className={`relative transition-all duration-1000 ${
-                isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-              }`}
-            >
-              <VoiceOrb 
-                isListening={isListening}
-                audioLevel={audioLevel}
-                size="lg"
-              />
-            </motion.div>
-
-            {/* Status text */}
-            <motion.div
-              className={`text-center transition-all duration-1000 delay-200 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-            >
-              <h2 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-2">
-                {user ? `Welcome back` : 'Your AI Health Companion'}
-              </h2>
-              <p className="text-muted-foreground text-sm md:text-base">
-                {isListening 
-                  ? 'Listening... speak your question' 
-                  : 'Tap below to start your consultation'}
-              </p>
-            </motion.div>
-
-            {/* Waveform Visualizer */}
-            <AnimatePresence>
-              {isListening && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -20, scale: 0.9 }}
-                  className="w-full"
+        {/* Hero Section */}
+        <main className="flex-1 px-4 md:px-6 py-4 overflow-y-auto">
+          <div className="max-w-6xl mx-auto space-y-8">
+            {/* Hero */}
+            <section className="text-center py-8">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="inline-block mb-6"
+              >
+                <VoiceOrb 
+                  isListening={false}
+                  audioLevel={audioLevel}
+                  size="lg"
+                />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+                  {user ? `Welcome back` : 'Your AI Health Companion'}
+                </h2>
+                <p className="text-muted-foreground text-lg mb-6 max-w-xl mx-auto">
+                  Powered by advanced medical AI models. Get personalized health insights, 
+                  symptom analysis, and wellness guidance 24/7.
+                </p>
+                
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleConsultationClick}
+                  className="glass-card px-8 py-4 flex items-center justify-center gap-3 haptic-glow cursor-pointer group border-glow mx-auto"
                 >
-                  <GlassWidget floating={false} className="p-4">
-                    <WaveformVisualizer 
-                      isActive={isListening}
-                      audioData={audioData}
-                      barCount={40}
-                    />
-                  </GlassWidget>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <MessageCircle className="w-5 h-5 text-primary transition-colors duration-300" />
+                  <span className="text-base font-medium text-foreground">
+                    Start Consultation
+                  </span>
+                  <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
+              </motion.div>
+            </section>
 
-            {/* Action buttons */}
-            <motion.div 
-              className={`flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto transition-all duration-1000 delay-300 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-            >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleVoice}
-                className={`w-full sm:w-auto glass-card px-6 py-3 flex items-center justify-center gap-3 haptic-glow cursor-pointer transition-all duration-300 ${
-                  isListening ? 'border-glow' : ''
-                }`}
-                style={{
-                  boxShadow: isListening ? '0 0 20px hsl(180 60% 55% / 0.4)' : undefined,
-                }}
+            {/* AI Models Section */}
+            <section>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-6"
               >
-                <div className={`w-3 h-3 rounded-full ${isListening ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
-                <span className="text-sm font-medium text-foreground">
-                  {isListening ? 'Stop Listening' : 'Voice Mode'}
-                </span>
-              </motion.button>
+                <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                  Specialized AI Models
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Choose from our suite of specialized medical AI assistants
+                </p>
+              </motion.div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {aiModels.map((model, index) => (
+                  <AIModelCard
+                    key={model.name}
+                    {...model}
+                    delay={index}
+                    isActive={index === selectedModel}
+                    onClick={() => setSelectedModel(index)}
+                  />
+                ))}
+              </div>
+            </section>
 
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleConsultationClick}
-                className="w-full sm:w-auto glass-card px-6 py-3 flex items-center justify-center gap-3 haptic-glow cursor-pointer group border-glow"
+            {/* Features Section */}
+            <section>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mb-6"
               >
-                <MessageCircle className="w-5 h-5 text-primary transition-colors duration-300" />
-                <span className="text-sm font-medium text-foreground">
-                  Start Consultation
-                </span>
-              </motion.button>
-            </motion.div>
+                <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                  Powerful Features
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Everything you need for comprehensive health management
+                </p>
+              </motion.div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {features.map((feature, index) => (
+                  <FeatureCard
+                    key={feature.title}
+                    {...feature}
+                    delay={index + 4}
+                    onClick={handleConsultationClick}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* Stats Section */}
+            <section>
+              <GlassWidget className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                  {[
+                    { label: 'AI Models', value: '4+', icon: Brain },
+                    { label: 'Health Topics', value: '100+', icon: Heart },
+                    { label: 'Response Time', value: '<1s', icon: Zap },
+                    { label: 'Accuracy Rate', value: '98%', icon: Activity },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + i * 0.1 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <stat.icon className="w-6 h-6 text-primary" />
+                      <span className="font-display text-2xl font-bold text-foreground">
+                        {stat.value}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{stat.label}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </GlassWidget>
+            </section>
           </div>
         </main>
 
@@ -218,9 +332,9 @@ const Index = () => {
           }`}
         >
           <p className="text-xs text-muted-foreground text-center">
-            Powered by Advanced Medical AI • Built with NovaCare <br/>
-            Still Loading © {new Date().getFullYear()}
-
+            Powered by Advanced Medical AI • HIPAA Compliant • Available 24/7 
+            <br></br>
+            Made with ❤️ by Still Loading Team
           </p>
         </footer>
       </div>
