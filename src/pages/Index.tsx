@@ -6,6 +6,7 @@ import VoiceOrb from '@/components/voice/VoiceOrb';
 import GlassWidget from '@/components/GlassWidget';
 import ChatPanel from '@/components/chat/ChatPanel';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
+import IntroAnimation from '@/components/IntroAnimation';
 import useAudioVisualization from '@/hooks/useAudioVisualization';
 import { useAuth } from '@/hooks/useAuth';
 import AIModelCard from '@/components/features/AIModelCard';
@@ -89,6 +90,7 @@ const Index = () => {
   const { user, signOut, isLoading } = useAuth();
   const [isLoaded, setIsLoaded] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState(0);
   
@@ -123,6 +125,11 @@ const Index = () => {
     <div className="relative min-h-screen overflow-hidden">
       <AmbientBackground />
       
+      {/* Intro Animation */}
+      {showIntro && (
+        <IntroAnimation onComplete={() => setShowIntro(false)} />
+      )}
+
       <AnimatePresence>
         {showOnboarding && (
           <OnboardingFlow onComplete={handleOnboardingComplete} />

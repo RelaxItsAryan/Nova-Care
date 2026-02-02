@@ -71,6 +71,11 @@
     --ekg-line: 160 70% 50%;
     --ekg-glow: 160 80% 60%;
 
+    /* Nova intro colors */
+    --nova-cyan: 180 70% 55%;
+    --nova-blue: 200 70% 55%;
+    --nova-violet: 260 70% 60%;
+
     --sidebar-background: 220 30% 8%;
     --sidebar-foreground: 200 20% 90%;
     --sidebar-primary: 180 60% 55%;
@@ -356,4 +361,33 @@
   to {
     transform: rotateY(360deg);
   }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(60px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(60px) rotate(-360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.text-gradient-nova {
+  background: linear-gradient(135deg, hsl(var(--nova-cyan)), hsl(var(--nova-violet)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
