@@ -391,3 +391,16 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.logo-glow {
+  animation: logo-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes logo-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--nova-cyan) / 0.6), inset 0 0 20px hsl(var(--nova-cyan) / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--nova-cyan) / 0.8), inset 0 0 30px hsl(var(--nova-cyan) / 0.3);
+  }
+}

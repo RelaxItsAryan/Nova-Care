@@ -149,8 +149,8 @@ const Index = () => {
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
             }`}
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border-glow">
-              <Sparkles className="w-5 h-5 text-primary" />
+            <div className="w-19 h-19 rounded-full bg-primary/20 flex items-center justify-center border-glow logo-glow overflow-hidden">
+              <img src="/Nova-Care-logo.png" alt="Nova Care Logo" className="w-16 h-16 object-contain" />
             </div>
             <div>
               <h1 className="font-display text-xl font-semibold text-foreground">
