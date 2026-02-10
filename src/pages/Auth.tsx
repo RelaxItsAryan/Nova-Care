@@ -98,8 +98,9 @@ const Auth = () => {
         <div className="glass-card p-8">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center border-glow">
-              <Sparkles className="w-6 h-6 text-primary" />
+            <div className="w-16 h-16">
+              {/* <Sparkles className="w-6 h-6 text-primary" /> */}
+             <img src="/Nova-Care-logo.png" alt="Nova Care Logo" />
             </div>
             <div>
               <h1 className="font-display text-2xl font-semibold text-foreground">

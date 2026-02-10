@@ -7,10 +7,29 @@ interface CoreOrbProps {
 
 const CoreOrb = ({ isActive = true, size = 'lg' }: CoreOrbProps) => {
   const [pulseIntensity, setPulseIntensity] = useState(1);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     if (!isActive) return;
     
+    const beat = () => {
+      // First beat
+      setScale(1.3);
+      setTimeout(() => setScale(1), 200);
+      
+      // Second beat after short pause
+      setTimeout(() => {
+        setScale(1.3);
+        setTimeout(() => setScale(1), 200);
+      }, 400);
+      
+      // Repeat every 2 seconds
+      setTimeout(beat, 2000);
+    };
+    
+    beat();
+    
+    // Keep the original pulse intensity for subtle breathing effect
     const interval = setInterval(() => {
       setPulseIntensity(0.8 + Math.random() * 0.4);
     }, 2000);
@@ -49,9 +68,11 @@ const CoreOrb = ({ isActive = true, size = 'lg' }: CoreOrbProps) => {
 
       {/* Main orb */}
       <div 
-        className={`core-orb ${sizeClasses[size]} transition-all duration-1000`}
+        className={`core-orb ${sizeClasses[size]}`}
         style={{
           opacity: isActive ? pulseIntensity : 0.5,
+          transform: `scale(${scale})`,
+          transition: 'transform 0.2s ease-in-out, opacity 1s ease-in-out',
         }}
       >
         {/* Inner highlight */}

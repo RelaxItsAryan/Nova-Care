@@ -7,6 +7,7 @@ import GlassWidget from '@/components/GlassWidget';
 import ChatPanel from '@/components/chat/ChatPanel';
 import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
 import IntroAnimation from '@/components/IntroAnimation';
+import CoreOrb from '@/components/CoreOrb';
 import useAudioVisualization from '@/hooks/useAudioVisualization';
 import { useAuth } from '@/hooks/useAuth';
 import AIModelCard from '@/components/features/AIModelCard';
@@ -180,11 +181,7 @@ const Index = () => {
                 transition={{ duration: 0.6 }}
                 className="inline-block mb-6"
               >
-                <VoiceOrb 
-                  isListening={false}
-                  audioLevel={audioLevel}
-                  size="lg"
-                />
+                <CoreOrb size="lg" />
               </motion.div>
               
               <motion.div

@@ -6,6 +6,11 @@
 
 /* Nova Care Design System - Futuristic Medical AI Interface */
 
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
 @layer base {
   :root {
     /* Deep space background */
