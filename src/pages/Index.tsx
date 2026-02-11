@@ -293,7 +293,7 @@ const Index = () => {
           <p className="text-xs text-muted-foreground text-center">
             Powered by Advanced Medical AI • HIPAA Compliant • Available 24/7 
             <br></br>
-            Made with ❤️ by Still Loading Team
+            Made with 💙 by Still Loading Team
           </p>
         </footer>
       </div>
