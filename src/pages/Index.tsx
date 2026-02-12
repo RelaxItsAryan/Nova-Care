@@ -30,30 +30,6 @@ import {
 
 
 const features = [
-  {
-    icon: Stethoscope,
-    title: 'Smart Symptom Checker',
-    description: 'AI-powered analysis of your symptoms with evidence-based insights and recommendations.',
-    gradient: 'bg-gradient-to-br from-cyan-500 to-blue-600',
-  },
-  {
-    icon: Brain,
-    title: 'Personalized Insights',
-    description: 'Get health recommendations tailored to your unique profile and medical history.',
-    gradient: 'bg-gradient-to-br from-purple-500 to-pink-600',
-  },
-  {
-    icon: Shield,
-    title: 'HIPAA Compliant',
-    description: 'Your health data is encrypted and protected with enterprise-grade security.',
-    gradient: 'bg-gradient-to-br from-green-500 to-emerald-600',
-  },
-  {
-    icon: Zap,
-    title: 'Real-time Responses',
-    description: 'Instant AI responses with streaming technology for natural conversations.',
-    gradient: 'bg-gradient-to-br from-yellow-500 to-orange-600',
-  },
 ];
 
 const Index = () => {
@@ -226,33 +202,6 @@ const Index = () => {
               
             </section>
 
-            {/* Features Section */}
-            <section>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="mb-6"
-              >
-                <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-                  Powerful Features
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Everything you need for comprehensive health management
-                </p>
-              </motion.div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {features.map((feature, index) => (
-                  <FeatureCard
-                    key={feature.title}
-                    {...feature}
-                    delay={index + 4}
-                    onClick={handleConsultationClick}
-                  />
-                ))}
-              </div>
-            </section>
 
             {/* Stats Section */}
             <section>
