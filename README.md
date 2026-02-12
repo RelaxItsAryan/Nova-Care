@@ -23,11 +23,7 @@ A modern, AI-powered medical chatbot application built with React and Node.js th
 
 ## 🖼️ Screenshots
 
-<img width="1919" height="1199" alt="Screenshot 2026-02-11 234135" src="https://github.com/user-attachments/assets/5823b885-4fc1-4d0e-8ba4-49184cc3847f" />
-
-<img width="995" height="824" alt="Screenshot 2026-02-11 235437" src="https://github.com/user-attachments/assets/f91adc2a-3939-4794-bb7b-534f6151e6b4" />
-
-<img width="563" height="1027" alt="Screenshot 2026-02-11 235230" src="https://github.com/user-attachments/assets/806461ae-4b8d-4507-aba8-013c4a5da2e6" />
+<img width="400" height="400" alt="Screenshot 2026-02-11 234135" src="https://github.com/user-attachments/assets/5823b885-4fc1-4d0e-8ba4-49184cc3847f" /> <img width="200" height="170" alt="Screenshot 2026-02-11 235437" src="https://github.com/user-attachments/assets/f91adc2a-3939-4794-bb7b-534f6151e6b4" /> <img width="150" height="225" alt="Screenshot 2026-02-11 235230" src="https://github.com/user-attachments/assets/806461ae-4b8d-4507-aba8-013c4a5da2e6" />
 
 
 ### Chat Interface
@@ -272,6 +268,7 @@ Made with ❤️ for better healthcare accessibility
 **⭐ Star this repo if you find it helpful!**
 
 </div>
+
 
 
 
